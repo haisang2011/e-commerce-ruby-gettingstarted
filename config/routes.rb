@@ -8,7 +8,5 @@ Rails.application.routes.draw do
   resources :orders do
     get '/', to: 'orders#index', as: "getAllOrders"
     post '/', to: 'orders#create', as: "createOrders"
-    put '/:id', to: 'orders#update', as: "updateOrders"
-    delete'/:id', to: 'orders#destroy', as: "destroyOrders"
   end
 end

@@ -1,27 +1,28 @@
 class OrdersController < ApplicationController
-  include JsonResponse
-
   skip_before_action :verify_authenticity_token
-
+  def index
+    orders = Order.all
+    render json: {success: true, data: orders}, status: :ok
+  end
   def create
-    # total_price_for_all_product(params["products"])
-    total_price = 0
-    params["products"].each do |product|
-      prod_query = Product.find_by(id: product[:product_id])
-      subtotal = product[:product_price] * product[:quantity]
-      total_price += subtotal
+    return render json: { success: false, message: "Products list is required." }, status: :unprocessable_entity if params[:products].blank?
+    begin
+      name_order = "DH" + Time.current.strftime("%Y%m%d%H%M%S")
+      total_price = calculator_total_price(params[:products])
+      order = Order.new(name: name_order, user_id: 1, total_price: total_price)
+
+      if order.save
+        render json: { success: true, message: "Order created successfully.", data: order }, status: :ok
+      else
+        render json: { success: false, message: order.errors.full_messages.join(", ") }, status: :unprocessable_entity
+      end
+    rescue => e
+      render json: { success: false, message: e.message }, status: :internal_server_error
     end
-    puts "Total price: #{total_price}"
   end
 
-  def total_price_for_all_product(prod_item)
-    prod_item.each do |prod|
-      # total_price = 0
-      # per_product = Product.where(id: prod["product_id"])
-      per_product = Product.find(prod["product_id"])
-      # quantity = prod["quantity"]
-      # puts "Product ID: #{product_id}, Quantity: #{quantity}, Price: #{product}"
-      json(true, per_product, 200)
-    end
+  def calculator_total_price(products)
+    products.sum { |item| item[:product_price] * item[:product_quantity] }
   end
 end
+
