@@ -9,4 +9,7 @@ Rails.application.routes.draw do
     get '/', to: 'orders#index', as: "getAllOrders"
     post '/', to: 'orders#create', as: "createOrders"
   end
+  resources :users
+  post '/auth/login', to: 'authentication#login'
 end
+
