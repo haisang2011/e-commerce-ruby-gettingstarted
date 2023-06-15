@@ -1,7 +1,7 @@
 class CreateOrders < ActiveRecord::Migration[7.0]
   def change
     create_table :orders do |t|
-      t.integer "name"
+      t.string "name"
       t.bigint "user_id"
       t.integer "total_price"
       t.timestamp :created_at, null: false, default: -> { "CURRENT_TIMESTAMP" }

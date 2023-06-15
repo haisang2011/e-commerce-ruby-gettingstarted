@@ -5,4 +5,8 @@ Rails.application.routes.draw do
     put '/:id', to: 'products#update', as: "updateProduct"
     delete'/:id', to: 'products#destroy', as: "destroyProduct"
   end
+  resources :orders do
+    get '/', to: 'orders#index', as: "getAllOrders"
+    post '/', to: 'orders#create', as: "createOrders"
+  end
 end
