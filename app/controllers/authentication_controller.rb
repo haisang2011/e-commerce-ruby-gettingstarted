@@ -30,9 +30,36 @@ class AuthenticationController < ApplicationController
       return render json: { status: 400, message: 'Incorrect email or password' }, status: :not_found
     end
   end
+  def sign_up
+    user = User.new
+    user.email = params[:email]
+    user.password = BCrypt::Password.create(params[:password])
+    user.first_name = params[:first_name]
+    user.last_name = params[:last_name]
 
+    if user.save
+      token = jwt_encode(user_id: user.id)
+      render json: {
+        message: 'Success',
+        status: 200,
+        data: {
+          accessToken: token,
+          user: {
+            user: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name
+          }
+        }
+      }, status: :ok
+    else
+      render json: { status: 400, message: 'Failed to sign up' }, status: :bad_request
+    end
+  end
   private
   def login_params
     params.permit(:email, :password)
+    end
+  def sign_up_params
+    params.permit(:email, :password, :firstName, :lastName)
   end
 end
