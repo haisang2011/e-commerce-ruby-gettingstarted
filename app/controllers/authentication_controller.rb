@@ -58,8 +58,5 @@ class AuthenticationController < ApplicationController
   private
   def login_params
     params.permit(:email, :password)
-    end
-  def sign_up_params
-    params.permit(:email, :password, :firstName, :lastName)
   end
 end
