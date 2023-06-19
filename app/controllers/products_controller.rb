@@ -44,6 +44,7 @@ class ProductsController < ApplicationController
 
       product.name = params[:name]
       product.price = params[:price]
+      product.image_url = params[:image_url]
       product.is_deleted = params[:is_deleted].presence || product.is_deleted
 
       if product.save
@@ -74,6 +75,6 @@ class ProductsController < ApplicationController
   private
 
   def product_params
-    params.permit(:name, :price)
+    params.permit(:name, :price, :image_url)
   end
 end
