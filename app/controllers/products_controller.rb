@@ -1,8 +1,9 @@
 class ProductsController < ApplicationController
-  # skip_before_action :verify_authenticity_token
-
   def index
     products = Product.where(is_deleted: false)
+    products.each do |product|
+      product.short_description = product.short_description.truncate(50, omission: '...') if product.short_description
+    end
     render json: { success: true, data: products }, status: :ok
   end
 
@@ -15,8 +16,14 @@ class ProductsController < ApplicationController
         return render json: { success: false, message: "Product with the given name already exists." }, status: :unprocessable_entity
       end
 
-      product = Product.new(product_params)
-      product.is_deleted = false
+      product = Product.new(
+        name: params[:name],
+        price: params[:price],
+        short_description: params[:short_description],
+        description: params[:description],
+        image_url: params[:image_url],
+        is_deleted: params[:is_deleted].present? && params[:is_deleted] == 'true'
+      )
 
       if product.save
         render json: { success: true, message: product }, status: :ok
@@ -34,23 +41,20 @@ class ProductsController < ApplicationController
 
       product = Product.find(params[:id])
       return render json: { success: false, message: "Product ID is required." }, status: :not_found if product.nil?
-      return render json: { success: false, message: "Name is required." }, status: :unprocessable_entity if params[:name].blank?
-      return render json: { success: false, message: "Price is required."}, status: :unprocessable_entity if params[:price].blank?
 
-      existing_product = Product.find_by(name: params[:name])
-      if existing_product && existing_product != product
-        return render json: { success: false, message: "Product with the given name already exists."}, status: :unprocessable_entity
-      end
-
-      product.name = params[:name]
-      product.price = params[:price]
-      product.image_url = params[:image_url]
+      product.name = params[:name].nil? ? nil : params[:name]
+      product.price = params[:price].nil? ? nil : params[:price]
+      product.image_url = params[:image_url].nil? ? nil : params[:image_url]
       product.is_deleted = params[:is_deleted].presence || product.is_deleted
 
-      if product.save
-        render json: { success: true, message: product}, status: :ok
+      if product.valid?
+        if product.save
+          render json: { success: true, message: product }, status: :ok
+        else
+          render json: { success: false, message: product.errors.full_messages }, status: :unprocessable_entity
+        end
       else
-        render json: { success: true, message: product}, status: :unprocessable_entity
+        render json: { success: false, message: product.errors.full_messages }, status: :unprocessable_entity
       end
     rescue => e
       render json: { success: false , message: e.message}, status: :internal_server_error
@@ -70,11 +74,5 @@ class ProductsController < ApplicationController
     render json: { success: true, message: "Product removed successfully."}, status: :ok
   rescue => e
     render json: { success: false, message: e.message}, status: :internal_server_error
-  end
-
-  private
-
-  def product_params
-    params.permit(:name, :price, :image_url)
   end
 end
