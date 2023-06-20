@@ -55,6 +55,43 @@ class AuthenticationController < ApplicationController
       render json: { status: 400, message: 'Failed to sign up' }, status: :bad_request
     end
   end
+
+  def update_profile
+    user = User.find_by(id: params[:id])
+
+    if user.nil?
+      render json: { status: 404, message: 'User not found' }, status: :not_found
+      return
+    end
+    update_success = user.update(email: params[:email],
+                                 first_name: params[:first_name],
+                                 last_name: params[:last_name],
+                                 middle_name: params[:middle_name],
+                                 age: params[:age],
+                                 gender: params[:gender],
+                                 avatar: params[:avatar])
+    if update_success
+      render json: {
+        message: 'Profile updated successfully',
+        status: 200,
+        data: {
+          user: {
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            middle_name: user.middle_name,
+            age: user.age,
+            gender: user.gender == 1 ? "Male" : "Female",
+            avatar: user.avatar
+          }
+        }
+      }, status: :ok
+    else
+      render json: { status: 400, message: 'Failed to update profile' }, status: :bad_request
+    end
+  end
+
+
   private
   def login_params
     params.permit(:email, :password)
