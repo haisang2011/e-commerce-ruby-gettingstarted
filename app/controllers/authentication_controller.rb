@@ -30,7 +30,7 @@ class AuthenticationController < ApplicationController
       return render json: { status: 400, message: 'Incorrect email or password' }, status: :not_found
     end
   end
-  def sign_up
+  def register
     user = User.new
     user.email = params[:email]
     user.password = BCrypt::Password.create(params[:password])

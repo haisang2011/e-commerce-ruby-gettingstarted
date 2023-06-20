@@ -16,7 +16,7 @@ Rails.application.routes.draw do
   end
   resources :users
   post '/auth/login', to: 'authentication#login'
-  post '/auth/sign_up', to: 'authentication#sign_up'
+  post '/auth/register', to: 'authentication#register'
   put '/auth/update_profile', to: 'authentication#update_profile'
 end
 
