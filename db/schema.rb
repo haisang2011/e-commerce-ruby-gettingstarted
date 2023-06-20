@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_16_033656) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_20_024625) do
   create_table "flags", charset: "utf8", force: :cascade do |t|
     t.string "name", null: false
   end
@@ -38,8 +38,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_16_033656) do
     t.integer "price"
     t.boolean "is_deleted"
     t.text "image_url"
-    t.timestamp "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.timestamp "created_at", default: -> { "CURRENT_TIMESTAMP" }
     t.timestamp "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.text "description"
+    t.string "short_description", limit: 512
   end
 
   create_table "role_flag", primary_key: ["role_id", "flag_id"], charset: "utf8", force: :cascade do |t|
