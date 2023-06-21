@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_20_073201) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_21_035451) do
   create_table "cart", charset: "utf8mb3", force: :cascade do |t|
     t.bigint "cart_id"
     t.bigint "product_id"
@@ -83,6 +83,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_20_073201) do
     t.timestamp "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.timestamp "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.string "avatar"
+    t.string "login_token", limit: 512
   end
 
   add_foreign_key "cart", "products"
