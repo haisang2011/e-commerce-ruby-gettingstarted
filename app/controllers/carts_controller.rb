@@ -10,7 +10,7 @@ class CartsController < ApplicationController
         message: 'Cart details retrieved successfully.',
         data: {
           cart_id: cart.id,
-          user_id: @current_user.id,
+          # user_id: @current_user.id,
           cart_details: cart_details.map do |detail|
             {
               product_id: detail.product.id,
@@ -36,7 +36,7 @@ class CartsController < ApplicationController
       product = Product.find_by(id: params[:product_id])
 
       # Find the cart detail associated with the cart and product that is not marked as deleted
-      cart_detail = CartDetail.where(cart_id: cart.id, product_id: product.id, is_deleted: 0).first
+      cart_detail = CartDetail.where(cart_id: cart.id, product_id: product.id).first
 
       # Determine the quantity of the product to be added to the cart
       product_quantity = params[:product_quantity].presence&.to_i || 1
@@ -72,13 +72,15 @@ class CartsController < ApplicationController
       # end
 
       if cart_detail.save
-        render json: { success: true, message: 'Product added to cart successfully.',data: {
-          cart_id: cart.id,
-          user_id: @current_user.id,
-          product_id: product.id,
-          product_name: product.name,
-          total_quantity: cart_detail.quantity
-        } }, status: :ok
+        render json: { success: true, message: 'Product added to cart successfully.',
+                       #                data: {
+                       #   cart_id: cart.id,
+                       #   user_id: @current_user.id,
+                       #   product_id: product.id,
+                       #   product_name: product.name,
+                       #   total_quantity: cart_detail.quantity
+                       # }
+        }, status: :ok
       else
         render json: { success: false, message: 'Failed to add product to cart.' }, status: :unprocessable_entity
       end
