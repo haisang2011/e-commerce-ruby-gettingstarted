@@ -10,14 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_21_093342) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_22_080819) do
   create_table "cart_details", charset: "utf8", force: :cascade do |t|
     t.bigint "cart_id"
     t.bigint "product_id"
     t.integer "quantity", default: 1
+    t.boolean "is_deleted", default: false
     t.timestamp "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.timestamp "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
-    t.boolean "is_deleted"
     t.index ["cart_id"], name: "fk_rails_cacf5c53ab"
     t.index ["product_id"], name: "fk_rails_452ab06cd3"
   end
@@ -45,8 +45,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_21_093342) do
 
   create_table "orders", charset: "utf8", force: :cascade do |t|
     t.string "name"
+    t.string "status", default: "new"
     t.bigint "user_id"
     t.integer "total_price"
+    t.boolean "is_deleted", default: false
     t.timestamp "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.timestamp "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.index ["user_id"], name: "fk_rails_f868b47f6a"
@@ -90,7 +92,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_21_093342) do
     t.string "avatar"
     t.timestamp "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.timestamp "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
-    t.string "avatar"
     t.string "login_token", limit: 512
   end
 

@@ -58,8 +58,21 @@ class OrdersController < ApplicationController
           end
 
           OrderDetail.create(order_details)
+
+          data = {
+            id: order.id,
+            name: order.name,
+            status: order.status,
+            user_id: order.user_id,
+            total_price: order.total_price,
+            total_price_formatted: ActionController::Base.helpers.number_with_delimiter(order.total_price, delimiter: ',', separator: '.', unit: '') + ' đ',
+            is_deleted: order.is_deleted,
+            created_at: order.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            updated_at: order.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+          }
+
           cart.update(is_deleted: true)
-          render json: { success: true, message: "Order created successfully.", data: order }, status: :created
+          render json: { success: true, message: "Order created successfully.", data: data }, status: :created
         rescue => e
           order.destroy
           render json: { success: false, message: e.message }, status: :internal_server_error
@@ -85,6 +98,46 @@ class OrdersController < ApplicationController
     end
 
     total_price
+  end
+  # def subtract_product_quantity(cart)
+  #   cart.cart_details.each do |cart_detail|
+  #     product = cart_detail.product
+  #     new_quantity = product.quantity - cart_detail.quantity
+  #     product.update(quantity: new_quantity)
+  #   end
+  # end
+  def get_order_by_user_id
+    # orders = Order.where(user_id: @current_user.id, is_deleted: false)
+    # data = orders.map do |order|
+    #   order.attributes.merge(total_price_formatted: ActionController::Base.helpers.number_with_delimiter(order.total_price, delimiter: ',', separator: '.', unit: '') + ' đ')
+    # end
+    #
+    # render json: {
+    #   success: true,
+    #   count_order: data.count,
+    #   data: data,
+    #
+    # }, status: :ok
+    orders = Order.where(user_id: @current_user.id, is_deleted: false)
+    data = orders.map do |order|
+      {
+        id: order.id,
+        name: order.name,
+        status: order.status,
+        user_id: order.user_id,
+        total_price: order.total_price,
+        total_price_formatted: ActionController::Base.helpers.number_with_delimiter(order.total_price, delimiter: ',', separator: '.', unit: '') + ' đ',
+        is_deleted: order.is_deleted,
+        created_at: order.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        updated_at: order.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+      }
+    end
+
+    render json: {
+      success: true,
+      count_order: data.count,
+      data: data
+    }, status: :ok
   end
 end
 
