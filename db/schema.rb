@@ -90,6 +90,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_21_093342) do
     t.string "avatar"
     t.timestamp "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.timestamp "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.string "avatar"
+    t.string "login_token", limit: 512
   end
 
   add_foreign_key "cart_details", "carts"

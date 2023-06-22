@@ -1,5 +1,5 @@
 class AuthenticationController < ApplicationController
-  skip_before_action :authenticate_request
+  skip_before_action :authenticate_request, only: [:login, :register]
 
   # POST /auth/login
   def login
@@ -10,6 +10,8 @@ class AuthenticationController < ApplicationController
     parsedPassword = BCrypt::Password.new(@user.password)
     if parsedPassword == login_params[:password]
       token = jwt_encode(user_id: @user.id)
+      @user.update(login_token: token)
+
       return render json: {
         message: 'Success',
         status: 200,
@@ -91,6 +93,10 @@ class AuthenticationController < ApplicationController
     end
   end
 
+  def logout
+    @current_user.update(login_token: nil);
+    render json: {message: "Logout successfully",success: true, data: nil}, status: 200
+  end
 
   private
   def login_params
