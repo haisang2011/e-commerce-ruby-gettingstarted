@@ -7,8 +7,9 @@ Rails.application.routes.draw do
     delete'/:id', to: 'products#destroy', as: "destroy_product"
   end
   resources :orders do
-    get '/', to: 'orders#index', as: "getAllOrders"
-    post '/', to: 'orders#create', as: "createOrders"
+    get '/', to: 'orders#index', as: "get_show"
+    # post '/', to: 'orders#create', as: "createOrders"
+    post '/', to: 'orders#create', as: "create_orders"
   end
   resources :order_details do
     get '/', to: 'order_details#index'
@@ -19,5 +20,12 @@ Rails.application.routes.draw do
   post '/auth/login', to: 'authentication#login'
   post '/auth/register', to: 'authentication#register'
   put '/auth/update_profile', to: 'authentication#update_profile'
+
+  resources :carts do
+    get 'get_cart', on: :collection, to: 'carts#show'
+    post 'add_to_cart', on: :collection, to: 'carts#add_to_cart'
+    delete 'remove_product', on: :collection, to: 'carts#destroy'
+    delete 'clear_cart', on: :collection, to: 'carts#clear_cart'
+  end
 end
 

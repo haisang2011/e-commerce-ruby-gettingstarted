@@ -2,9 +2,10 @@ class OrdersController < ApplicationController
   # skip_before_action :verify_authenticity_token
   def index
     orders = Order.all
-    render json: {success: true, data: orders}, status: :ok
+    render json: { success: true, data: orders }, status: :ok
   end
-  def create
+
+  def create_test
     return render json: { success: false, message: "Products list is required." }, status: :unprocessable_entity if params[:products].blank?
 
     begin
@@ -38,8 +39,52 @@ class OrdersController < ApplicationController
     end
   end
 
-  def calculator_total_price(products)
-    products.sum { |item| item[:product_price] * item[:product_quantity] }
+  def create
+    cart = Cart.find_by(id: params[:cart_id])
+    name_order = "DH" + Time.current.strftime("%Y%m%d%H%M%S")
+    total_price = total_price_from_cart(cart)
+
+    if cart
+      order = Order.new(name: name_order, user_id: @current_user.id, total_price: total_price)
+      if order.save
+        begin
+          order_details = cart.cart_details.map do |cart_detail|
+            {
+              order_id: order.id,
+              product_id: cart_detail.product_id,
+              product_price: cart_detail.product.price,
+              quantity: cart_detail.quantity
+            }
+          end
+
+          OrderDetail.create(order_details)
+          cart.update(is_deleted: true)
+          render json: { success: true, message: "Order created successfully.", data: order }, status: :created
+        rescue => e
+          order.destroy
+          render json: { success: false, message: e.message }, status: :internal_server_error
+        end
+
+      else
+        render json: { success: false, message: 'Cart not found.' }, status: :not_found
+      end
+    end
+  end
+
+  # def calculator_total_price(products)
+  #   products.sum { |item| item[:product_price] * item[:product_quantity] }
+  # end
+  def total_price_from_cart(cart)
+    total_price = 0
+
+    cart.cart_details.each do |cart_detail|
+      product_price = cart_detail.product.price
+      quantity = cart_detail.quantity
+      subtotal = product_price * quantity
+      total_price += subtotal
+    end
+
+    total_price
   end
 end
 
