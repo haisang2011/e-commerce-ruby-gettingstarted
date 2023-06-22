@@ -28,7 +28,7 @@ gem "stimulus-rails"
 gem "jbuilder"
 
 gem 'mysql2'
-
+gem 'devise'
 gem "jwt"
 
 # Use Redis adapter to run Action Cable in production
