@@ -45,7 +45,7 @@ class OrdersController < ApplicationController
     total_price = total_price_from_cart(cart)
 
     if cart
-      order = Order.new(name: name_order, user_id: @current_user.id, total_price: total_price)
+      order = Order.new(name: name_order, user_id: @current_user.id, total_price: total_price, status: NEW)
       if order.save
         begin
           order_details = cart.cart_details.map do |cart_detail|
@@ -84,40 +84,17 @@ class OrdersController < ApplicationController
     end
   end
 
-  # def calculator_total_price(products)
-  #   products.sum { |item| item[:product_price] * item[:product_quantity] }
-  # end
   def total_price_from_cart(cart)
     total_price = 0
-
     cart.cart_details.each do |cart_detail|
       product_price = cart_detail.product.price
       quantity = cart_detail.quantity
       subtotal = product_price * quantity
       total_price += subtotal
     end
-
     total_price
   end
-  # def subtract_product_quantity(cart)
-  #   cart.cart_details.each do |cart_detail|
-  #     product = cart_detail.product
-  #     new_quantity = product.quantity - cart_detail.quantity
-  #     product.update(quantity: new_quantity)
-  #   end
-  # end
   def get_order_by_user_id
-    # orders = Order.where(user_id: @current_user.id, is_deleted: false)
-    # data = orders.map do |order|
-    #   order.attributes.merge(total_price_formatted: ActionController::Base.helpers.number_with_delimiter(order.total_price, delimiter: ',', separator: '.', unit: '') + ' đ')
-    # end
-    #
-    # render json: {
-    #   success: true,
-    #   count_order: data.count,
-    #   data: data,
-    #
-    # }, status: :ok
     orders = Order.where(user_id: @current_user.id, is_deleted: false)
     data = orders.map do |order|
       {
@@ -138,6 +115,46 @@ class OrdersController < ApplicationController
       count_order: data.count,
       data: data
     }, status: :ok
+  end
+
+  def update_status
+    next_status = params[:next_status]
+    order_id = params[:order_id]
+
+    order = Order.find_by(id: order_id)
+    unless order
+      render json: { success: false, message: "Order not found" }, status: :not_found
+      return
+    end
+
+    current_status = order.status
+
+    if current_status == "NEW" && next_status == "APPROVED"
+      order.status = next_status
+    elsif current_status == "APPROVED" && next_status == "SHIPPING"
+      order.status = next_status
+    elsif current_status == "SHIPPING" && next_status == "COMPLETED"
+      order.status = next_status
+    else
+      render json: { success: false, error: "Invalid status transition" }, status: :unprocessable_entity
+      return
+    end
+
+    if order.save
+      data = {
+        id: order.id,
+        name: order.name,
+        status: order.status,
+        user_id: order.user_id,
+        total_price: order.total_price,
+        total_price_formatted: ActionController::Base.helpers.number_with_delimiter(order.total_price, delimiter: ',', separator: '.', unit: '') + ' đ',
+        created_at: order.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        updated_at: order.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+      }
+      render json: { success: true, message: "Order status updated successfully", data: data }, status: :ok
+    else
+      render json: { success: false, message: "Failed to update order status" }, status: :unprocessable_entity
+    end
   end
 end
 
