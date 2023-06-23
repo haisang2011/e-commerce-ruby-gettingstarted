@@ -11,6 +11,7 @@ Rails.application.routes.draw do
     # post '/', to: 'orders#create', as: "createOrders"
     post '/', to: 'orders#create', on: :collection, as: "create_orders"
     get '/get_order_by_user_id', on: :collection, to: 'orders#get_order_by_user_id', as: "get_order_by_user_id"
+    put '/update_status', on: :collection, to: 'orders#update_status', as: "update_status_order"
   end
   resources :order_details do
     get '/', to: 'order_details#index'

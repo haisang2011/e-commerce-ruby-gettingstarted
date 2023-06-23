@@ -27,6 +27,7 @@ class CartsController < ApplicationController
       render json: { success: false, message: 'Cart not found.' }, status: :not_found
     end
   end
+
   def add_to_cart
     begin
       # Find or create a cart associated with the current user and not marked as deleted
