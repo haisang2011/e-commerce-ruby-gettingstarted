@@ -131,8 +131,14 @@ class CartsController < ApplicationController
     cart = Cart.find_by(user_id: @current_user.id, is_deleted: false)
 
     if cart
+      # Delete all cart details associated with the cart
+      cart.cart_details.each do |cart_detail|
+        cart_detail.update(is_deleted: true)
+      end
+
       # Update the is_deleted attribute of the cart to mark it as deleted
       cart.update(is_deleted: true)
+
       render json: { success: true, message: 'Cart cleared successfully.' }, status: :ok
     else
       # If no cart is found, return a JSON response indicating the cart was not found
