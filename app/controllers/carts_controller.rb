@@ -4,7 +4,6 @@ class CartsController < ApplicationController
 
     if cart
       cart_details = cart.cart_details.where(is_deleted: 0)
-
       response_data = {
         success: true,
         message: 'Cart details retrieved successfully.',
@@ -15,6 +14,7 @@ class CartsController < ApplicationController
             {
               product_id: detail.product.id,
               product_name: detail.product.name,
+              product_price: detail.product.price,
               product_image_url: detail.product.image_url,
               quantity: detail.quantity
             }

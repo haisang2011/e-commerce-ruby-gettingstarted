@@ -1,4 +1,6 @@
 class ProductsController < ApplicationController
+  skip_before_action :authenticate_request, only: [:index]
+
   def index
     products = Product.where(is_deleted: false)
     products.each do |product|
